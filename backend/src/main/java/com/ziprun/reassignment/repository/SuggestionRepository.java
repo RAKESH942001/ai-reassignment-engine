@@ -19,4 +19,6 @@ public interface SuggestionRepository extends JpaRepository<ReassignmentSuggesti
     List<ReassignmentSuggestion> findByOrderId(String orderId);
 
     List<ReassignmentSuggestion> findByOrderIdAndStatus(String orderId, SuggestionStatus status);
+
+    List<ReassignmentSuggestion> findByRecommendedAgentIdAndStatus(String recommendedAgentId, SuggestionStatus status);
 }

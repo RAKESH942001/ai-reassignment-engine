@@ -51,6 +51,16 @@ public class ReplanEventListener {
                 event.agentName(), event.agentId(), Thread.currentThread().getName());
 
         try {
+            // Invalidate existing PENDING suggestions that recommended this now-offline agent
+            List<ReassignmentSuggestion> staleSuggestions = suggestionRepository
+                    .findByRecommendedAgentIdAndStatus(event.agentId(), SuggestionStatus.PENDING);
+            if (!staleSuggestions.isEmpty()) {
+                log.info("[Async Re-plan] Invalidating {} stale pending suggestion(s) recommending now-offline agent {}",
+                        staleSuggestions.size(), event.agentId());
+                staleSuggestions.forEach(s -> s.setStatus(SuggestionStatus.REJECTED));
+                suggestionRepository.saveAll(staleSuggestions);
+            }
+
             List<Order> strandedOrders = orderRepository.findByAssignedAgentIdAndStatus(
                     event.agentId(), OrderStatus.ASSIGNED);
 

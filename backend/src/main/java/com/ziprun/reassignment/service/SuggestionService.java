@@ -77,6 +77,10 @@ public class SuggestionService {
         Agent newAgent = agentRepository.findById(suggestion.getRecommendedAgentId())
                 .orElseThrow(() -> new ResourceNotFoundException("Recommended agent '" + suggestion.getRecommendedAgentId() + "' not found"));
 
+        if (newAgent.getStatus() == AgentStatus.OFFLINE) {
+            throw new IllegalStateException("Cannot accept suggestion: recommended agent '" + newAgent.getId() + "' is currently OFFLINE.");
+        }
+
         Agent oldAgent = (order.getAssignedAgentId() != null)
                 ? agentRepository.findById(order.getAssignedAgentId()).orElse(null)
                 : null;
